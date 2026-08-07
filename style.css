@@ -1,0 +1,18 @@
+/* ---------- Tokens ---------- */
+:root{
+  --mocha:#A5856F;
+  --mocha-dark:#7C6250;
+  --sky:#A0D4E0;
+  --sky-dark:#6FA9B8;
+  --grey:#F2F0EA;
+  --ink:#33302B;
+  --ink-soft:#6B655C;
+  --surface:#FFFFFF;
+  --danger:#B5583F;
+  --ok:#5E8C6A;
+  --radius:14px;
+  --shadow: 0 6px 20px rgba(51,48,43,0.08);
+  --font-head:'Inter', system-ui, sans-serif;
+  --font-body:'Open Sans', system-ui, sans-serif;
+}
+
