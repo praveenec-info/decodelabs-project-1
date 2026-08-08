@@ -1,187 +1,138 @@
-const STORAGE_KEY = 'taskflow.tasks';
-let currentFilter = 'all';
+(function(){
+  "use strict";
 
-const elements = {
-  form: document.querySelector('#taskForm'),
-  taskInput: document.querySelector('#taskInput'),
-  prioritySelect: document.querySelector('#prioritySelect'),
-  taskList: document.querySelector('#taskList'),
-  emptyState: document.querySelector('#emptyState'),
-  dialPercent: document.querySelector('#dialPercent'),
-  filterButtons: document.querySelectorAll('[data-filter]'),
-  navToggle: document.querySelector('#navToggle'),
-  primaryNav: document.querySelector('#primaryNav'),
-  statTotal: document.querySelector('#statTotal'),
-  statDone: document.querySelector('#statDone'),
-  statActive: document.querySelector('#statActive'),
-  statHigh: document.querySelector('#statHigh')
-};
-
-let tasks = loadTasks();
-
-function loadTasks() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.warn('Unable to restore saved tasks:', error);
-    return [];
-  }
-}
-
-function saveTasks() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-}
-
-function escapeHtml(value) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-function createTask(text, priority) {
-  const id = typeof crypto !== 'undefined' && crypto.randomUUID
-    ? crypto.randomUUID()
-    : `task-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-  return {
-    id,
-    text,
-    priority,
-    done: false
-  };
-}
-
-function getFilteredTasks() {
-  switch (currentFilter) {
-    case 'active':
-      return tasks.filter((task) => !task.done);
-    case 'done':
-      return tasks.filter((task) => task.done);
-    default:
-      return tasks;
-  }
-}
-
-function updateStats() {
-  const total = tasks.length;
-  const done = tasks.filter((task) => task.done).length;
-  const active = total - done;
-  const high = tasks.filter((task) => task.priority === 'high').length;
-
-  elements.statTotal.textContent = String(total);
-  elements.statDone.textContent = String(done);
-  elements.statActive.textContent = String(active);
-  elements.statHigh.textContent = String(high);
-}
-
-function updateDial() {
-  const total = tasks.length;
-  const done = tasks.filter((task) => task.done).length;
-  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
-
-  elements.dialPercent.textContent = `${percent}%`;
-}
-
-function renderTasks() {
-  const filtered = getFilteredTasks();
-
-  elements.taskList.innerHTML = '';
-
-  if (filtered.length === 0) {
-    elements.taskList.hidden = true;
-    elements.emptyState.hidden = false;
-  } else {
-    elements.taskList.hidden = false;
-    elements.emptyState.hidden = true;
-  }
-
-  filtered.forEach((task) => {
-    const item = document.createElement('li');
-    item.className = `task-item ${task.done ? 'done' : ''}`;
-
-    item.innerHTML = `
-      <input type="checkbox" ${task.done ? 'checked' : ''} aria-label="Mark ${escapeHtml(task.text)} as done">
-      <span class="task-text">${escapeHtml(task.text)}</span>
-      <span class="tag ${task.priority}">${task.priority}</span>
-      <button type="button" class="del-btn" aria-label="Delete ${escapeHtml(task.text)}">×</button>
-    `;
-
-    const checkbox = item.querySelector('input[type="checkbox"]');
-    checkbox.addEventListener('change', () => {
-      task.done = checkbox.checked;
-      saveTasks();
-      render();
-    });
-
-    const deleteButton = item.querySelector('.del-btn');
-    deleteButton.addEventListener('click', () => {
-      tasks = tasks.filter((entry) => entry.id !== task.id);
-      saveTasks();
-      render();
-    });
-
-    elements.taskList.appendChild(item);
+  // ---- Mobile nav toggle ----
+  var navToggle = document.getElementById('navToggle');
+  var primaryNav = document.getElementById('primaryNav');
+  navToggle.addEventListener('click', function(){
+    var open = primaryNav.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  primaryNav.addEventListener('click', function(e){
+    if(e.target.tagName === 'A' && primaryNav.classList.contains('open')){
+      primaryNav.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
   });
 
-  updateStats();
-  updateDial();
-}
+  // ---- Task manager state (in-memory) ----
+  var tasks = [];
+  var idCounter = 0;
+  var currentFilter = 'all';
 
-function renderFilterButtons() {
-  elements.filterButtons.forEach((button) => {
-    const isActive = button.dataset.filter === currentFilter;
-    button.setAttribute('aria-pressed', String(isActive));
-  });
-}
+  var form = document.getElementById('taskForm');
+  var input = document.getElementById('taskInput');
+  var prioritySelect = document.getElementById('prioritySelect');
+  var list = document.getElementById('taskList');
+  var emptyState = document.getElementById('emptyState');
+  var filterButtons = document.querySelectorAll('.filters button');
 
-function render() {
-  renderFilterButtons();
-  renderTasks();
-}
+  var statTotal = document.getElementById('statTotal');
+  var statDone = document.getElementById('statDone');
+  var statActive = document.getElementById('statActive');
+  var statHigh = document.getElementById('statHigh');
+  var dialPercent = document.getElementById('dialPercent');
 
-function handleSubmit(event) {
-  event.preventDefault();
+  function render(){
+    list.innerHTML = '';
+    var visible = tasks.filter(function(t){
+      if(currentFilter === 'active') return !t.done;
+      if(currentFilter === 'done') return t.done;
+      return true;
+    });
 
-  const text = elements.taskInput.value.trim();
-  if (!text) {
-    elements.taskInput.focus();
-    return;
+    if(visible.length === 0){
+      emptyState.style.display = 'block';
+      emptyState.textContent = tasks.length === 0
+        ? 'No tasks yet — add your first one above.'
+        : 'Nothing here for this filter.';
+    } else {
+      emptyState.style.display = 'none';
+    }
+
+    visible.forEach(function(t){
+      var li = document.createElement('li');
+      li.className = 'task-item' + (t.done ? ' done' : '');
+
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = t.done;
+      checkbox.setAttribute('aria-label', 'Mark "' + t.text + '" as ' + (t.done ? 'active' : 'done'));
+      checkbox.addEventListener('change', function(){
+        t.done = checkbox.checked;
+        render();
+      });
+
+      var span = document.createElement('span');
+      span.className = 'task-text';
+      span.textContent = t.text;
+
+      var tag = document.createElement('span');
+      tag.className = 'tag ' + t.priority;
+      tag.textContent = t.priority;
+
+      var delBtn = document.createElement('button');
+      delBtn.className = 'del-btn';
+      delBtn.type = 'button';
+      delBtn.innerHTML = '&#10005;';
+      delBtn.setAttribute('aria-label', 'Delete "' + t.text + '"');
+      delBtn.addEventListener('click', function(){
+        tasks = tasks.filter(function(x){ return x.id !== t.id; });
+        render();
+      });
+
+      li.appendChild(checkbox);
+      li.appendChild(span);
+      li.appendChild(tag);
+      li.appendChild(delBtn);
+      list.appendChild(li);
+    });
+
+    updateStats();
   }
 
-  tasks.push(createTask(text, elements.prioritySelect.value));
-  saveTasks();
-  elements.form.reset();
-  elements.prioritySelect.value = 'normal';
+  function updateStats(){
+    var total = tasks.length;
+    var done = tasks.filter(function(t){ return t.done; }).length;
+    var active = total - done;
+    var high = tasks.filter(function(t){ return t.priority === 'high' && !t.done; }).length;
+
+    statTotal.textContent = total;
+    statDone.textContent = done;
+    statActive.textContent = active;
+    statHigh.textContent = high;
+
+    var pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    dialPercent.textContent = pct + '%';
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var text = input.value.trim();
+    if(!text) return;
+    tasks.push({
+      id: ++idCounter,
+      text: text,
+      priority: prioritySelect.value,
+      done: false
+    });
+    input.value = '';
+    input.focus();
+    render();
+  });
+
+  filterButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      filterButtons.forEach(function(b){ b.setAttribute('aria-pressed','false'); });
+      btn.setAttribute('aria-pressed','true');
+      currentFilter = btn.getAttribute('data-filter');
+      render();
+    });
+  });
+
+  // Seed a couple of example tasks so the UI isn't empty on load
+  tasks.push({ id: ++idCounter, text: 'Wireframe the responsive layout', priority: 'high', done: true });
+  tasks.push({ id: ++idCounter, text: 'Style with CSS Grid + Flexbox', priority: 'normal', done: false });
+  tasks.push({ id: ++idCounter, text: 'Test on mobile, tablet, desktop', priority: 'low', done: false });
   render();
-  elements.taskInput.focus();
-}
-
-function toggleMobileNav() {
-  const isExpanded = elements.navToggle.getAttribute('aria-expanded') === 'true';
-  elements.navToggle.setAttribute('aria-expanded', String(!isExpanded));
-  elements.primaryNav.classList.toggle('open', !isExpanded);
-}
-
-function initialize() {
-  elements.form.addEventListener('submit', handleSubmit);
-
-  elements.filterButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      currentFilter = button.dataset.filter;
-      render();
-    });
-  });
-
-  if (elements.navToggle && elements.primaryNav) {
-    elements.navToggle.addEventListener('click', toggleMobileNav);
-  }
-
-  render();
-}
-
-initialize();
+})();
