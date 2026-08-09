@@ -40,6 +40,7 @@ a{ color:inherit; }
   clip:rect(0 0 0 0); white-space:nowrap;
 }
 
+/* Visible focus ring everywhere — accessibility floor */
 :focus-visible{
   outline: 3px solid var(--sky-dark);
   outline-offset: 2px;
@@ -52,7 +53,7 @@ a{ color:inherit; }
   padding-inline: clamp(1rem, 4vw, 2.5rem);
 }
 
-/* ---------- Header / Nav (Flexbox) ---------- */
+/* ---------- Header / Nav (Flexbox: micro component) ---------- */
 header.site-header{
   position:sticky; top:0; z-index:20;
   background:rgba(242,240,234,0.9);
@@ -118,7 +119,7 @@ nav.primary-nav a:hover, nav.primary-nav a:focus-visible{
 }
 .hero h1 em{
   font-style:normal;
-  background:linear-gradient(180deg, transparent 60%, var(--sky) 60%);
+  color:var(--mocha-dark);
 }
 .hero p{
   color:var(--ink-soft);
@@ -167,7 +168,7 @@ nav.primary-nav a:hover, nav.primary-nav a:focus-visible{
   color:var(--ink-soft);
 }
 
-/* ---------- Main grid (CSS Grid) ---------- */
+/* ---------- Main grid (CSS Grid: macro layout) ---------- */
 main{
   display:grid;
   grid-template-columns: 1fr;
@@ -278,7 +279,7 @@ footer.site-footer{
   display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem;
 }
 
-/* ---------- Tablet: 768px ---------- */
+/* ---------- Tablet: 768px — two column main ---------- */
 @media (min-width:768px){
   nav.primary-nav ul{ gap:2rem; }
   main{
@@ -295,7 +296,7 @@ footer.site-footer{
   main{ grid-template-columns: 2.4fr 1fr; }
 }
 
-/* Mobile nav collapse */
+/* Mobile nav collapse (mobile-first: hidden below 640px when toggled) */
 @media (max-width:639px){
   .nav-toggle{ display:inline-flex; flex-direction:column; }
   nav.primary-nav{

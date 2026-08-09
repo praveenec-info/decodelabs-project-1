@@ -131,8 +131,8 @@
   });
 
   // Seed a couple of example tasks so the UI isn't empty on load
-  tasks.push({ id: ++idCounter, text: 'Wireframe the responsive layout', priority: 'high', done: true });
-  tasks.push({ id: ++idCounter, text: 'Style with CSS Grid + Flexbox', priority: 'normal', done: false });
-  tasks.push({ id: ++idCounter, text: 'Test on mobile, tablet, desktop', priority: 'low', done: false });
+  tasks.push({ id: ++idCounter, text: 'Walking', priority: 'high', done: true });
+  tasks.push({ id: ++idCounter, text: 'Writing', priority: 'normal', done: false });
+  tasks.push({ id: ++idCounter, text: 'Exercise', priority: 'low', done: false });
   render();
 })();
