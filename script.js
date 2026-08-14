@@ -1,7 +1,9 @@
 (function(){
   "use strict";
 
-  // ---- Mobile nav toggle ----
+  var API_BASE = "http://localhost:5000/api/tasks";
+
+  // ---- Mobile nav toggle (unchanged) ----
   var navToggle = document.getElementById('navToggle');
   var primaryNav = document.getElementById('primaryNav');
   navToggle.addEventListener('click', function(){
@@ -15,9 +17,8 @@
     }
   });
 
-  // ---- Task manager state (in-memory) ----
+  // ---- Task manager state (now backed by API) ----
   var tasks = [];
-  var idCounter = 0;
   var currentFilter = 'all';
 
   var form = document.getElementById('taskForm');
@@ -32,6 +33,31 @@
   var statActive = document.getElementById('statActive');
   var statHigh = document.getElementById('statHigh');
   var dialPercent = document.getElementById('dialPercent');
+
+  // ---- API helpers ----
+  function apiFetch(url, options){
+    return fetch(url, options).then(function(res){
+      return res.json().then(function(body){
+        if(!res.ok){
+          throw new Error(body.message || 'Request failed');
+        }
+        return body;
+      });
+    });
+  }
+
+  function loadTasks(){
+    apiFetch(API_BASE)
+      .then(function(body){
+        tasks = body.data;
+        render();
+      })
+      .catch(function(err){
+        emptyState.style.display = 'block';
+        emptyState.textContent = 'Could not load tasks. Is the backend server running?';
+        console.error(err);
+      });
+  }
 
   function render(){
     list.innerHTML = '';
@@ -59,8 +85,11 @@
       checkbox.checked = t.done;
       checkbox.setAttribute('aria-label', 'Mark "' + t.text + '" as ' + (t.done ? 'active' : 'done'));
       checkbox.addEventListener('change', function(){
-        t.done = checkbox.checked;
-        render();
+        apiFetch(API_BASE + '/' + t.id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ done: checkbox.checked })
+        }).then(loadTasks).catch(function(err){ console.error(err); });
       });
 
       var span = document.createElement('span');
@@ -77,8 +106,9 @@
       delBtn.innerHTML = '&#10005;';
       delBtn.setAttribute('aria-label', 'Delete "' + t.text + '"');
       delBtn.addEventListener('click', function(){
-        tasks = tasks.filter(function(x){ return x.id !== t.id; });
-        render();
+        apiFetch(API_BASE + '/' + t.id, { method: 'DELETE' })
+          .then(loadTasks)
+          .catch(function(err){ console.error(err); });
       });
 
       li.appendChild(checkbox);
@@ -110,15 +140,16 @@
     e.preventDefault();
     var text = input.value.trim();
     if(!text) return;
-    tasks.push({
-      id: ++idCounter,
-      text: text,
-      priority: prioritySelect.value,
-      done: false
-    });
-    input.value = '';
-    input.focus();
-    render();
+
+    apiFetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, priority: prioritySelect.value })
+    }).then(function(){
+      input.value = '';
+      input.focus();
+      loadTasks();
+    }).catch(function(err){ console.error(err); });
   });
 
   filterButtons.forEach(function(btn){
@@ -130,9 +161,6 @@
     });
   });
 
-  // Seed a couple of example tasks so the UI isn't empty on load
-  tasks.push({ id: ++idCounter, text: 'Walking', priority: 'high', done: true });
-  tasks.push({ id: ++idCounter, text: 'Writing', priority: 'normal', done: false });
-  tasks.push({ id: ++idCounter, text: 'Exercise', priority: 'low', done: false });
-  render();
+  // Load tasks from backend on page load
+  loadTasks();
 })();
