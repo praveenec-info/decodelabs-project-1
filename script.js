@@ -37,6 +37,10 @@
   // ---- API helpers ----
   function apiFetch(url, options){
     return fetch(url, options).then(function(res){
+      // DELETE returns 204 No Content — no body to parse
+      if(res.status === 204){
+        return {};
+      }
       return res.json().then(function(body){
         if(!res.ok){
           throw new Error(body.message || 'Request failed');
