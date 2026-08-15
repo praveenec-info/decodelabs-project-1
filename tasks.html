@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Tasks — TaskFlow</title>
+<meta name="description" content="Manage your tasks with TaskFlow.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page-loader" id="pageLoader" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="wrap nav-row">
+    <a class="logo" href="index.html"><span class="dot" aria-hidden="true"></span> TaskFlow</a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Toggle menu">
+      <span></span>
+    </button>
+    <nav class="primary-nav" id="primaryNav" aria-label="Primary">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="tasks.html" aria-current="page">My tasks</a></li>
+        <li><a href="index.html#about">About</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap workspace" id="top" style="display:block;">
+
+  <div class="workspace-header">
+    <div>
+      <p class="breadcrumb"><a href="index.html">Home</a> <span aria-hidden="true">/</span> My Tasks</p>
+      <h1>Today's <em>tasks</em>.</h1>
+      <p class="sub-lede">Add what matters, tag its priority, and check it off when you're done.</p>
+    </div>
+    <div class="dial" role="img" aria-label="Task completion progress">
+      <div class="dial-inner">
+        <span class="num" id="dialPercent">0%</span>
+        <span class="label">Completed</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="workspace-grid" id="app">
+    <section class="panel" aria-labelledby="tasksHeading">
+      <h2 id="tasksHeading">Task input</h2>
+      <p class="sub">Add a task, set its priority, and check it off when it's done.</p>
+
+      <form class="task-form" id="taskForm">
+        <label class="visually-hidden" for="taskInput">Task description</label>
+        <input type="text" id="taskInput" name="taskInput" placeholder="e.g. Finish energy dashboard wireframe" required maxlength="120">
+        <label class="visually-hidden" for="prioritySelect">Priority</label>
+        <select id="prioritySelect" name="priority">
+          <option value="normal">Normal</option>
+          <option value="high">High</option>
+          <option value="low">Low</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Add task</button>
+      </form>
+
+      <p class="status-msg" id="statusMsg" role="status" aria-live="polite"></p>
+
+      <div class="filters" role="group" aria-label="Filter tasks">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="active" aria-pressed="false">Active</button>
+        <button type="button" data-filter="done" aria-pressed="false">Done</button>
+      </div>
+
+      <ul class="task-list" id="taskList" aria-live="polite"></ul>
+      <p class="empty-state" id="emptyState">Loading your tasks…</p>
+    </section>
+
+    <aside class="panel" aria-labelledby="statsHeading">
+      <h2 id="statsHeading">Overview</h2>
+      <p class="sub">A quick snapshot of where you stand.</p>
+      <div class="stats-grid">
+        <div class="stat-card"><span class="n" id="statTotal">0</span><span class="l">Total</span></div>
+        <div class="stat-card"><span class="n" id="statDone">0</span><span class="l">Done</span></div>
+        <div class="stat-card"><span class="n" id="statActive">0</span><span class="l">Active</span></div>
+        <div class="stat-card"><span class="n" id="statHigh">0</span><span class="l">High priority</span></div>
+      </div>
+    </aside>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span>&copy; 2026 TaskFlow. All rights reserved.</span>
+    <span>TaskFlow</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -46,6 +46,20 @@ a{ color:inherit; }
   outline-offset: 2px;
 }
 
+/* ---------- Page transition loader ---------- */
+.page-loader{
+  position:fixed; top:0; left:0; right:0; height:3px;
+  background:var(--mocha);
+  z-index:999;
+  transform-origin:left;
+  animation: pageLoadBar .5s ease-out forwards;
+}
+@keyframes pageLoadBar{
+  0%{ transform:scaleX(0); opacity:1; }
+  70%{ transform:scaleX(0.9); }
+  100%{ transform:scaleX(1); opacity:0; }
+}
+
 /* ---------- Layout shell ---------- */
 .wrap{
   max-width:1100px;
@@ -70,6 +84,7 @@ header.site-header{
   display:flex; align-items:center; gap:.5rem;
   font-family:var(--font-head); font-weight:800;
   font-size:clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+  text-decoration:none;
 }
 .logo .dot{
   width:.6rem; height:.6rem; border-radius:50%;
@@ -86,6 +101,11 @@ nav.primary-nav a{
 }
 nav.primary-nav a:hover, nav.primary-nav a:focus-visible{
   color:var(--ink); border-color:var(--mocha);
+}
+/* Active page indicator — set via aria-current="page" in HTML */
+nav.primary-nav a[aria-current="page"]{
+  color:var(--ink);
+  border-color:var(--mocha-dark);
 }
 .nav-toggle{
   display:none;
@@ -138,6 +158,7 @@ nav.primary-nav a:hover, nav.primary-nav a:focus-visible{
 .btn-primary{ background:var(--mocha); color:#fff; }
 .btn-primary:hover{ box-shadow:0 8px 18px rgba(165,133,111,0.35); }
 .btn-ghost{ background:transparent; border-color:var(--ink); color:var(--ink); }
+.btn-large{ padding:1.05rem 2rem; font-size:1.05rem; }
 
 /* Signature element: the blueprint dial */
 .dial{
@@ -168,12 +189,48 @@ nav.primary-nav a:hover, nav.primary-nav a:focus-visible{
   color:var(--ink-soft);
 }
 
+/* ---------- Home page: CTA panel ---------- */
+.cta-panel{
+  background:var(--ink);
+  color:var(--grey);
+  border-radius:var(--radius);
+  padding:clamp(2rem, 4vw, 3rem);
+  text-align:center;
+  margin-block: 1.5rem 3rem;
+}
+.cta-panel h2{ color:#fff; font-size:clamp(1.4rem, 1.2rem + 1vw, 2rem); }
+.cta-panel .sub{ color:rgba(242,240,234,0.75); margin-block:.6rem 1.5rem; }
+.cta-panel .btn-primary{ background:var(--sky); color:var(--ink); }
+.cta-panel .btn-primary:hover{ box-shadow:0 8px 18px rgba(160,212,224,0.35); }
+
 /* ---------- Main grid (CSS Grid: macro layout) ---------- */
 main{
   display:grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
   padding-block: 1rem 3rem;
+}
+
+/* ---------- My Tasks page: workspace layout ---------- */
+.workspace-header{
+  display:flex; flex-wrap:wrap; gap:1.5rem;
+  align-items:center; justify-content:space-between;
+  padding-block: 1.5rem 1rem;
+}
+.workspace-header h1{
+  font-size:clamp(1.7rem, 1.4rem + 1.5vw, 2.4rem);
+}
+.breadcrumb{
+  font-size:.85rem; color:var(--ink-soft); margin:0 0 .4rem;
+}
+.breadcrumb a{ text-decoration:none; font-weight:600; }
+.breadcrumb a:hover{ color:var(--mocha-dark); }
+.sub-lede{ color:var(--ink-soft); margin-top:.5rem; max-width:46ch; }
+.workspace-header .dial{ width:min(150px, 40vw); }
+.workspace-grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
 }
 
 .panel{
@@ -210,6 +267,14 @@ main{
 .task-form input:focus-visible, .task-form select:focus-visible{
   border-color:var(--sky-dark);
 }
+
+/* Status / feedback message (success + error states) */
+.status-msg{
+  font-size:.85rem; font-weight:600;
+  margin:-.6rem 0 1rem; min-height:1.2em;
+}
+.status-msg.success{ color:var(--ok); }
+.status-msg.error{ color:var(--danger); }
 
 .filters{
   display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap;
@@ -254,6 +319,7 @@ ul.task-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction
 .empty-state{
   text-align:center; padding:2rem 1rem; color:var(--ink-soft);
 }
+.empty-state.error-state{ color:var(--danger); font-weight:600; }
 
 /* stats sidebar cards */
 .stats-grid{
@@ -289,11 +355,16 @@ footer.site-footer{
   .hero{
     grid-template-columns: 1.2fr 0.8fr;
   }
+  .workspace-grid{
+    grid-template-columns: 2fr 1fr;
+    align-items:start;
+  }
 }
 
 /* ---------- Desktop: 1024px ---------- */
 @media (min-width:1024px){
   main{ grid-template-columns: 2.4fr 1fr; }
+  .workspace-grid{ grid-template-columns: 2.4fr 1fr; }
 }
 
 /* Mobile nav collapse (mobile-first: hidden below 640px when toggled) */
@@ -314,4 +385,5 @@ footer.site-footer{
 
 @media (prefers-reduced-motion: reduce){
   *{ transition:none !important; scroll-behavior:auto !important; }
+  .page-loader{ animation:none; opacity:0; }
 }

@@ -17,7 +17,7 @@
     }
   });
 
-  // ---- Task manager state (now backed by API) ----
+  // ---- Task manager state (backed by API) ----
   var tasks = [];
   var currentFilter = 'all';
 
@@ -26,6 +26,7 @@
   var prioritySelect = document.getElementById('prioritySelect');
   var list = document.getElementById('taskList');
   var emptyState = document.getElementById('emptyState');
+  var statusMsg = document.getElementById('statusMsg');
   var filterButtons = document.querySelectorAll('.filters button');
 
   var statTotal = document.getElementById('statTotal');
@@ -34,10 +35,21 @@
   var statHigh = document.getElementById('statHigh');
   var dialPercent = document.getElementById('dialPercent');
 
+  var statusTimer = null;
+
+  function showStatus(message, type){
+    statusMsg.textContent = message;
+    statusMsg.className = 'status-msg ' + (type || '');
+    if(statusTimer) clearTimeout(statusTimer);
+    statusTimer = setTimeout(function(){
+      statusMsg.textContent = '';
+      statusMsg.className = 'status-msg';
+    }, 3000);
+  }
+
   // ---- API helpers ----
   function apiFetch(url, options){
     return fetch(url, options).then(function(res){
-      // DELETE returns 204 No Content — no body to parse
       if(res.status === 204){
         return {};
       }
@@ -58,13 +70,16 @@
       })
       .catch(function(err){
         emptyState.style.display = 'block';
-        emptyState.textContent = 'Could not load tasks. Is the backend server running?';
+        emptyState.classList.add('error-state');
+        emptyState.textContent = 'Could not connect to the server. Make sure the backend is running, then refresh this page.';
         console.error(err);
       });
   }
 
   function render(){
     list.innerHTML = '';
+    emptyState.classList.remove('error-state');
+
     var visible = tasks.filter(function(t){
       if(currentFilter === 'active') return !t.done;
       if(currentFilter === 'done') return t.done;
@@ -93,7 +108,12 @@
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ done: checkbox.checked })
-        }).then(loadTasks).catch(function(err){ console.error(err); });
+        }).then(function(){
+          loadTasks();
+        }).catch(function(err){
+          showStatus('Could not update task. Try again.', 'error');
+          console.error(err);
+        });
       });
 
       var span = document.createElement('span');
@@ -111,8 +131,14 @@
       delBtn.setAttribute('aria-label', 'Delete "' + t.text + '"');
       delBtn.addEventListener('click', function(){
         apiFetch(API_BASE + '/' + t.id, { method: 'DELETE' })
-          .then(loadTasks)
-          .catch(function(err){ console.error(err); });
+          .then(function(){
+            showStatus('Task deleted.', 'success');
+            loadTasks();
+          })
+          .catch(function(err){
+            showStatus('Could not delete task. Try again.', 'error');
+            console.error(err);
+          });
       });
 
       li.appendChild(checkbox);
@@ -152,8 +178,12 @@
     }).then(function(){
       input.value = '';
       input.focus();
+      showStatus('Task added.', 'success');
       loadTasks();
-    }).catch(function(err){ console.error(err); });
+    }).catch(function(err){
+      showStatus('Could not add task. ' + err.message, 'error');
+      console.error(err);
+    });
   });
 
   filterButtons.forEach(function(btn){

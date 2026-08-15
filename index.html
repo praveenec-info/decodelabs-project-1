@@ -12,17 +12,19 @@
 </head>
 <body>
 
+<div class="page-loader" id="pageLoader" aria-hidden="true"></div>
+
 <header class="site-header">
   <div class="wrap nav-row">
-    <a class="logo" href="#top"><span class="dot" aria-hidden="true"></span> TaskFlow</a>
+    <a class="logo" href="index.html"><span class="dot" aria-hidden="true"></span> TaskFlow</a>
     <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Toggle menu">
       <span></span>
     </button>
     <nav class="primary-nav" id="primaryNav" aria-label="Primary">
       <ul>
-        <li><a href="#top">Home</a></li>
-        <li><a href="#app">My tasks</a></li>
-        <li><a href="#about">About</a></li>
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="tasks.html">My tasks</a></li>
+        <li><a href="index.html#about">About</a></li>
       </ul>
     </nav>
   </div>
@@ -35,56 +37,46 @@
       <h1>Plan the day <em>before</em> it plans you.</h1>
       <p>TaskFlow is a no-clutter task manager. Add what matters, tag its priority, and watch your dial fill in as you clear the list.</p>
       <div class="hero-actions">
-        <a href="#app" class="btn btn-primary">Start planning</a>
+        <a href="tasks.html" class="btn btn-primary">Start planning</a>
         <a href="#about" class="btn btn-ghost">How it works</a>
       </div>
     </div>
     <div class="dial" role="img" aria-label="Task completion progress">
       <div class="dial-inner">
-        <span class="num" id="dialPercent">0%</span>
-        <span class="label">Completed</span>
+        <span class="num">100%</span>
+        <span class="label">Possible</span>
       </div>
     </div>
   </section>
 
-  <div style="display:contents;" id="app">
-    <section class="panel" aria-labelledby="tasksHeading">
-      <h2 id="tasksHeading">Today's tasks</h2>
-      <p class="sub">Add a task, set its priority, and check it off when it's done.</p>
-
-      <form class="task-form" id="taskForm">
-        <label class="visually-hidden" for="taskInput">Task description</label>
-        <input type="text" id="taskInput" name="taskInput" placeholder="e.g. Finish energy dashboard wireframe" required maxlength="120">
-        <label class="visually-hidden" for="prioritySelect">Priority</label>
-        <select id="prioritySelect" name="priority">
-          <option value="normal">Normal</option>
-          <option value="high">High</option>
-          <option value="low">Low</option>
-        </select>
-        <button type="submit" class="btn btn-primary">Add task</button>
-      </form>
-
-      <div class="filters" role="group" aria-label="Filter tasks">
-        <button type="button" data-filter="all" aria-pressed="true">All</button>
-        <button type="button" data-filter="active" aria-pressed="false">Active</button>
-        <button type="button" data-filter="done" aria-pressed="false">Done</button>
+  <section class="panel" id="about" aria-labelledby="aboutHeading">
+    <h2 id="aboutHeading">How it works</h2>
+    <p class="sub">TaskFlow keeps your day simple — three steps, no clutter.</p>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="n">1</span>
+        <span class="l">Add a task</span>
       </div>
-
-      <ul class="task-list" id="taskList" aria-live="polite"></ul>
-      <p class="empty-state" id="emptyState">No tasks yet — add your first one above.</p>
-    </section>
-
-    <aside class="panel" id="about" aria-labelledby="statsHeading">
-      <h2 id="statsHeading">Overview</h2>
-      <p class="sub">A quick snapshot of where you stand.</p>
-      <div class="stats-grid">
-        <div class="stat-card"><span class="n" id="statTotal">0</span><span class="l">Total</span></div>
-        <div class="stat-card"><span class="n" id="statDone">0</span><span class="l">Done</span></div>
-        <div class="stat-card"><span class="n" id="statActive">0</span><span class="l">Active</span></div>
-        <div class="stat-card"><span class="n" id="statHigh">0</span><span class="l">High priority</span></div>
+      <div class="stat-card">
+        <span class="n">2</span>
+        <span class="l">Set priority</span>
       </div>
-    </aside>
-  </div>
+      <div class="stat-card">
+        <span class="n">3</span>
+        <span class="l">Check it off</span>
+      </div>
+      <div class="stat-card">
+        <span class="n">✓</span>
+        <span class="l">Track progress</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-panel" aria-labelledby="ctaHeading">
+    <h2 id="ctaHeading">Ready to get organized?</h2>
+    <p class="sub">Jump into your workspace — add tasks, set priorities, and watch your progress fill in.</p>
+    <a href="tasks.html" class="btn btn-primary btn-large">Go to My Tasks →</a>
+  </section>
 
 </main>
 
@@ -95,6 +87,6 @@
   </div>
 </footer>
 
-<script src="script.js"></script>
+<script src="nav.js"></script>
 </body>
 </html>

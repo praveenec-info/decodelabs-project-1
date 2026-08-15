@@ -1,11 +1,11 @@
 {
   "name": "taskflow-backend",
   "version": "1.0.0",
-  "description": "Backend REST API for TaskFlow - Project 2, DecodeLabs Full Stack Internship",
+  "description": "Backend REST API for TaskFlow - Project 3, DecodeLabs Full Stack Internship",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node --experimental-sqlite server.js",
+    "dev": "nodemon --exec \"node --experimental-sqlite\" server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

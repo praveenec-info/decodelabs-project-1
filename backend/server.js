@@ -4,6 +4,9 @@ const cors = require("cors");
 const taskRoutes = require("./routes/taskRoutes");
 const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
 
+// Importing this triggers database connection + schema creation (database/db.js)
+require("./database/db");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -13,7 +16,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "TaskFlow Backend API is running.",
+    message: "TaskFlow Backend API is running (Project 3 — Database Integration).",
     endpoints: {
       getAllTasks: "GET /api/tasks",
       getTaskById: "GET /api/tasks/:id",
@@ -30,4 +33,5 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`✅ TaskFlow Backend running on http://localhost:${PORT}`);
+  console.log(`✅ Connected to SQLite database (backend/database/tasks.db)`);
 });
